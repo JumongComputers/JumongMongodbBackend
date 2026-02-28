@@ -1,34 +1,24 @@
 import { Controller, Post, Body } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { LoginDto } from 'src/users/dto/login-user-dto';
+// import { LoginDto } from 'src/users/dto/login.dto';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  register(
-    @Body()
-    body: {
-      name: string;
-      email: string;
-      password: string;
-    },
-  ) {
-    return this.usersService.createUser(body);
+  @ApiOperation({ summary: 'Register a new user' })
+  register(@Body() dto: CreateUserDto) {
+    return this.authService.register(dto);
   }
 
   @Post('login')
-  login(
-    @Body()
-    body: {
-      email: string;
-      password: string;
-    },
-  ) {
-    return this.authService.login(body.email, body.password);
+  @ApiOperation({ summary: 'Login user and return JWT token' })
+  login(@Body() dto: LoginDto) {
+    return this.authService.login(dto.email, dto.password);
   }
 }
