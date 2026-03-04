@@ -42,6 +42,18 @@ export class UsersService {
     return this.userModel.findById(id).exec();
   }
 
+  async updateRefreshToken(userId: string, hashedToken: string) {
+    await this.userModel.findByIdAndUpdate(userId, {
+      refreshToken: hashedToken,
+    });
+  }
+
+  async removeRefreshToken(userId: string) {
+    await this.userModel.findByIdAndUpdate(userId, {
+      refreshToken: null,
+    });
+  }
+
   /* =======================
      Registration
   ======================= */
