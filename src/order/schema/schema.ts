@@ -39,6 +39,9 @@ export class Order {
     default: OrderStatus.PENDING,
   })
   status!: OrderStatus;
+
+  @Prop({ default: null })
+  paymentReference?: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

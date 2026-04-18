@@ -3,7 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Product, ProductDocument } from 'src/products/schema/product.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { Order, OrderDocument } from './schema/schema';
+import { Order, OrderDocument, OrderStatus } from './schema/schema';
+import { PaymentService } from 'src/payment/payment.service';
 // import { Order, OrderDocument } from './schema/order.schema';
 
 @Injectable()
@@ -14,6 +15,8 @@ export class OrdersService {
 
     @InjectModel(Product.name)
     private readonly productModel: Model<ProductDocument>,
+
+    private readonly paymentService: PaymentService,
   ) {}
 
   /* =======================
@@ -82,6 +85,50 @@ export class OrdersService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
+
+    return order;
+  }
+
+  // ======================
+  // Initialize payment for an order
+  // ======================
+
+  async initializePayment(orderId: string, email: string) {
+    const order = await this.orderModel.findById(orderId);
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    const payment = await this.paymentService.initializePayment(
+      email,
+      order.totalPrice,
+    );
+
+    return payment; // contains authorization_url
+  }
+
+  // ======================
+  // Verify and update payment for an order
+  // ======================
+
+  async verifyPayment(reference: string) {
+    const payment = await this.paymentService.verifyPayment(reference);
+
+    if (payment.status !== 'success') {
+      throw new Error('Payment not successful');
+    }
+
+    const order = await this.orderModel.findOne({
+      totalPrice: payment.amount / 100,
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    order.status = OrderStatus.PAID;
+    await order.save();
 
     return order;
   }

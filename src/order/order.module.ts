@@ -7,6 +7,7 @@ import { Product, ProductSchema } from 'src/products/schema/product.schema';
 import { Order, OrderSchema } from './schema/schema';
 import { OrdersController } from './order.controller';
 import { OrdersService } from './order.service';
+import { PaymentModule } from 'src/payment/payment.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { OrdersService } from './order.service';
       { name: Order.name, schema: OrderSchema },
       { name: Product.name, schema: ProductSchema },
     ]),
+    PaymentModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],
