@@ -5,6 +5,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import type { AuthUser } from 'src/auth/interfaces/auth-user.interface';
+// import { AuthGuard } from '@nestjs/passport';
 
 @Controller('orders')
 export class OrdersController {
@@ -35,5 +36,16 @@ export class OrdersController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ordersService.findById(id);
+  }
+
+  // 🔥 ADD THIS
+  @Post(':id/pay')
+  @UseGuards(JwtAuthGuard)
+  payOrder(@Param('id') orderId: string, @CurrentUser() user: AuthUser) {
+    return this.ordersService.initializePayment(
+      orderId,
+      user.userId,
+      user.email,
+    );
   }
 }

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Product, ProductDocument } from 'src/products/schema/product.schema';
@@ -93,11 +97,16 @@ export class OrdersService {
   // Initialize payment for an order
   // ======================
 
-  async initializePayment(orderId: string, email: string) {
+  async initializePayment(orderId: string, userId: string, email: string) {
     const order = await this.orderModel.findById(orderId);
 
     if (!order) {
       throw new NotFoundException('Order not found');
+    }
+
+    // 🔐 Ownership check
+    if (order.user.toString() !== userId) {
+      throw new ForbiddenException('You cannot pay for this order');
     }
 
     const payment = await this.paymentService.initializePayment(
@@ -105,7 +114,7 @@ export class OrdersService {
       order.totalPrice,
     );
 
-    return payment; // contains authorization_url
+    return payment; // contains authorization_url + reference
   }
 
   // ======================

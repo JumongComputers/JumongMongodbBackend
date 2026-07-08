@@ -9,13 +9,20 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 @Module({
   imports: [
     UsersModule,
-    PassportModule,
+
+    // ✅ IMPORTANT: set default strategy
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+
+    // ✅ safer config
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: process.env.JWT_SECRET || 'dev_secret', // fallback prevents crash
       signOptions: { expiresIn: '15m' },
     }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
+
+  // ✅ VERY IMPORTANT (used by other modules like Orders)
+  exports: [JwtModule, PassportModule],
 })
 export class AuthModule {}

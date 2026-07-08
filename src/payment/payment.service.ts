@@ -4,11 +4,21 @@ import {
   PaystackInitializeResponse,
   PaystackVerifyResponse,
 } from './response interface/interface';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PaymentService {
-  private readonly baseUrl = process.env.PAYSTACK_BASE_URL;
-  private readonly secretKey = process.env.PAYSTACK_SECRET_KEY;
+  private readonly baseUrl: string;
+  private readonly secretKey: string;
+
+  constructor(private configService: ConfigService) {
+    this.baseUrl = this.configService.get<string>('PAYSTACK_BASE_URL')!;
+    this.secretKey = this.configService.get<string>('PAYSTACK_SECRET_KEY')!;
+
+    // Debug (remove later)
+    console.log('BASE URL:', this.baseUrl);
+    console.log('SECRET KEY:', this.secretKey);
+  }
 
   /* =======================
      INITIALIZE PAYMENT
@@ -26,6 +36,7 @@ export class PaymentService {
       {
         headers: {
           Authorization: `Bearer ${this.secretKey}`,
+          'Content-Type': 'application/json',
         },
       },
     );

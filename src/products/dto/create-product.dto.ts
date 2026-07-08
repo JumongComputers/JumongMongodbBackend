@@ -4,6 +4,8 @@ import {
   IsOptional,
   IsBoolean,
   Min,
+  IsArray,
+  IsUrl,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -26,4 +28,10 @@ export class CreateProductDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  // ✅ ADD THIS
+  @IsOptional()
+  @IsArray()
+  @IsUrl({}, { each: true }) // ensures each item is a valid URL
+  images?: string[];
 }

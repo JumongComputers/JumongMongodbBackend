@@ -14,7 +14,7 @@ export class Product {
   @Prop({ required: true })
   price!: number;
 
-  @Prop({ default: [] })
+  @Prop({ type: [String], default: [] })
   images!: string[];
 }
 
